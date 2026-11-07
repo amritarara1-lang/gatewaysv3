@@ -19,7 +19,7 @@
         .date { font-size: 13px; color: #666; margin-bottom: 20px; }
         p { margin-bottom: 15px; color: #444; }
         .btn-box { margin-top: 30px; text-align: center; }
-        .btn { display: inline-block; background: #0066cc; color: #fff; padding: 12px 25px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .btn { display: inline-block; background: #0066cc; color: #fff; padding: 12px 25px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 14px; transition: background 0.2s; }
         .btn:hover { background: #004fb3; }
     </style>
 </head>
@@ -33,12 +33,12 @@
         <p id="par2">Melalui optimalisasi sistem peladen awan, penyedia layanan terus berinovasi untuk menghadirkan kestabilan tayangan serta efisiensi navigasi bagi pengguna perangkat seluler maupun komputer.</p>
 
         <div class="btn-box">
-            <a href="#" class="btn" id="mainLink">Baca Selengkapnya &rarr;</a>
+            <a href="#" class="btn" id="mainLink">Memuat Tautan...</a>
         </div>
     </div>
 
     <script>
-        // Array variasi teks agar setiap kali di-load bot, isinya berbeda-beda (Menghindari Template Fingerprinting)
+        // 1. Variasi teks untuk mengecoh bot (Anti-Template Fingerprinting)
         const variasiJudul = [
             "Perkembangan Teknologi dan Akses Layanan Digital di Era Modern",
             "Tinjauan Kinerja Infrastruktur Jaringan Telekomunikasi Global",
@@ -54,7 +54,7 @@
             "Pengembangan protokol komunikasi data masa kini dirancang untuk memberikan tingkat kestabilan yang lebih tinggi bagi pengguna global."
         ];
 
-        // Acak isi secara otomatis
+        // Acak isi tampilan secara otomatis
         const randomTitle = variasiJudul[Math.floor(Math.random() * variasiJudul.length)];
         const randomP1 = variasiParagraf[Math.floor(Math.random() * variasiParagraf.length)];
         const randomP2 = variasiParagraf[Math.floor(Math.random() * variasiParagraf.length)];
@@ -64,6 +64,37 @@
         document.getElementById('mainHeading').innerText = randomTitle;
         document.getElementById('par1').innerText = randomP1;
         document.getElementById('par2').innerText = randomP2;
+
+        // 2. Fungsi mengambil link asli dari Database D1 berdasarkan Slug URL
+        async function fetchTargetLink() {
+            const pathSegments = window.location.pathname.split("/").filter(Boolean);
+            const slug = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : "";
+            const btn = document.getElementById('mainLink');
+
+            if (!slug || slug === "index.html" || slug === "admin.html") {
+                btn.href = "https://t.me/koleksikitaV1";
+                btn.innerText = "Kunjungi Kanal Utama &rarr;";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/resolve?slug=${slug}`);
+                const data = await response.json();
+
+                if (data && data.target_url) {
+                    btn.href = data.target_url;
+                    btn.innerText = "Baca Selengkapnya &rarr;";
+                } else {
+                    btn.href = "https://t.me/koleksikitaV1";
+                    btn.innerText = "Tautan Tidak Ditemukan &rarr;";
+                }
+            } catch (err) {
+                btn.href = "https://t.me/koleksikitaV1";
+                btn.innerText = "Kunjungi Kanal Utama &rarr;";
+            }
+        }
+
+        fetchTargetLink();
     </script>
 </body>
 </html>
